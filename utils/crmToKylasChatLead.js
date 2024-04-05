@@ -28,7 +28,7 @@ async function fetchAllLeadData() {
 
 function mapZohoLeadToKylasFormat(lead) {
     return {
-        "firstName": `${lead.First_Name}` ?? "",
+        "firstName": lead.First_Name == null ? "" : `${lead.First_Name}` ?? "",
         "lastName": `${lead.Last_Name}` ?? "",
         "phoneNumbers": [
             {
