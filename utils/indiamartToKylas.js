@@ -100,10 +100,10 @@ function formatDate(date) {
 
 function indiamartToKylas() {
     fetchLeads();
-    setInterval(fetchLeads, 5 * 60 * 1000);
+    setInterval(fetchLeads, 6 * 60 * 1000);
 }
 
-lastLeadQueryTime = formatDate(new Date(Date.now() - 5 * 60 * 1000));
+lastLeadQueryTime = formatDate(new Date(Date.now() - 6 * 60 * 1000));
 
 module.exports = {
     indiamartToKylas
