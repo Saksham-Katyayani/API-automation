@@ -48,7 +48,7 @@ async function fetchLeads() {
 
         const endTime = formatDate(currentTime);
 
-        const startTime = lastLeadQueryTime ?? formatDate(new Date(Date.now() - 5 * 60 * 1000));
+        const startTime = lastLeadQueryTime ?? formatDate(new Date(Date.now() - 6 * 60 * 1000));
 
         const apiUrl = `https://mapi.indiamart.com/wservce/crm/crmListing/v2/?glusr_crm_key=mRyyE71u4H/AS/eq4XCO7l2Ko1rNlDRk&start_time=${startTime}&end_time=${endTime}`;
         console.log(apiUrl);
