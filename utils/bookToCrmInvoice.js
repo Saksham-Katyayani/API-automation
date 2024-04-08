@@ -18,8 +18,7 @@ const fetchInvoicesData = async (authToken) => {
 
     try {
         const currentTime = new Date();
-        const oneHourAgo = new Date(currentTime - 60 * 60 * 1000);
-        const formattedOneHourAgo = oneHourAgo.toISOString();
+        const oneHourAgo = new Date(currentTime - 120 * 60 * 1000);
 
         const response = await axios.get(
             `https://www.zohoapis.in/books/v3/invoices?organization_id=${organizationId}`,
@@ -106,7 +105,7 @@ const postInvoiceToCRM = async (invoice) => {
                 "line_tax": []
             };
             productDetails.push(productDetail);
-        })
+        });
 
 
 
@@ -189,8 +188,6 @@ const searchContactByPhone = async (phoneNumber) => {
 };
 
 const executeHourlyTask = async () => {
-    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
-
     try {
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
 
@@ -208,7 +205,7 @@ const executeHourlyTask = async () => {
 
 function ZohoBookToCRMInvoice() {
     executeHourlyTask();
-    setInterval(executeHourlyTask, 3600000);
+    setInterval(executeHourlyTask, 120 * 60 * 1000);
 }
 
 module.exports = {

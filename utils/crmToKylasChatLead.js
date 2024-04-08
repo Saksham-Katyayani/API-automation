@@ -14,7 +14,7 @@ async function fetchAllLeadData() {
 
         const leads = response.data.data.filter((lead) => {
             const createdTime = new Date(lead.Created_Time).getTime();
-            const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
+            const thirtyMinutesAgo = Date.now() - 120 * 60 * 1000;
             return createdTime >= thirtyMinutesAgo;
         });
 
@@ -77,7 +77,7 @@ async function processLeadData() {
 
 function ZohoCRMToKylasChatLeads() {
     processLeadData();
-    setInterval(processLeadData, 30 * 60 * 1000);
+    setInterval(processLeadData, 120 * 60 * 1000);
 }
 
 module.exports = {
