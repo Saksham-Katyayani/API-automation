@@ -8,8 +8,9 @@ const { ZohoCRMToKylasChatLeads } = require("./utils/crmToKylasChatLead.js");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-let ZOHO_CRM_ACCESS_TOKEN = '';
+var ZOHO_CRM_ACCESS_TOKEN = '';
 
 async function startServer() {
     await updateAccessToken();

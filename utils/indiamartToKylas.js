@@ -1,25 +1,24 @@
 const axios = require('axios');
 
-let lastLeadQueryTime = null;
 
 function mapLeadToKylasFormat(lead) {
     return {
-        lastName: lead.SENDER_NAME,
-        city: lead.SENDER_CITY,
-        phoneNumbers: [
+        "lastName": `${lead.SENDER_NAME}`,
+        "city": `${lead.SENDER_CITY}`,
+        "phoneNumbers": [
             {
-                type: "MOBILE",
-                code: lead.SENDER_COUNTRY_ISO,
-                value: lead.SENDER_MOBILE,
-                primary: true
+                "type": "MOBILE",
+                "code": `${lead.SENDER_COUNTRY_ISO}`,
+                "value": lead.SENDER_MOBILE,
+                "primary": true
             }
         ],
-        state: lead.SENDER_STATE,
-        country: lead.SENDER_COUNTRY_ISO,
-        source: 80347,
-        companyName: lead.SENDER_COMPANY,
-        requirementName: lead.SUBJECT,
-        subSource: "Katyayani"
+        "state": `${lead.SENDER_STATE}`,
+        "country": `${lead.SENDER_COUNTRY_ISO}`,
+        "source": 80347,
+        "companyName": `${lead.SENDER_COMPANY}`,
+        "requirementName": `${lead.SUBJECT}`,
+        "subSource": "Katyayani"
     };
 }
 
@@ -41,20 +40,18 @@ async function fetchLeads() {
     try {
         const currentTime = new Date();
         const endTime = formatDateTime(currentTime);
-        const startTime = lastLeadQueryTime || formatDateTime(new Date(currentTime - 10 * 60 * 1000));
+        const startTime = formatDateTime(new Date(currentTime - 10 * 60 * 1000));
         const apiUrl = `https://mapi.indiamart.com/wservce/crm/crmListing/v2/?glusr_crm_key=mRyyE71u4H/AS/eq4XCO7l2Ko1rNlDRk&start_time=${startTime}&end_time=${endTime}`;
+        console.log(apiUrl);
         const response = await axios.get(apiUrl);
         if (response.status === 200 && response.data.STATUS === 'SUCCESS') {
             const leads = response.data.RESPONSE;
-            if (leads.length > 0) {
-                lastLeadQueryTime = leads[leads.length - 1].QUERY_TIME;
-            }
             console.log('Received leads:', leads);
             for (const lead of leads) {
                 await postLeadToKylas(lead);
             }
         } else {
-            console.error('Error: Unable to fetch leads. Status:', response.data.STATUS);
+            console.error('Error: Unable to fetch leads. Status:', response.data);
         }
     } catch (error) {
         console.error('Error:', error.message);
@@ -68,6 +65,7 @@ function formatDateTime(date) {
 }
 
 function indiamartToKylas() {
+    console.log(ZOHO_CRM_ACCESS_TOKEN)
     fetchLeads();
     setInterval(fetchLeads, 10 * 60 * 1000);
 }

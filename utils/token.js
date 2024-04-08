@@ -13,6 +13,7 @@ async function fetchAccessToken() {
 }
 
 async function updateAccessToken() {
+
     try {
         const accessTokens = await fetchAccessToken();
         ZOHO_CRM_ACCESS_TOKEN = accessTokens;
