@@ -47,9 +47,9 @@ async function fetchLeads() {
         if (response.status === 200 && response.data.STATUS === 'SUCCESS') {
             const leads = response.data.RESPONSE;
             console.log('Received leads:', leads);
-            for (const lead of leads) {
+            await async.eachSeries(leads, async (lead) => {
                 await postLeadToKylas(lead);
-            }
+            });
         } else {
             console.error('Error: Unable to fetch leads. Status:', response.data);
         }

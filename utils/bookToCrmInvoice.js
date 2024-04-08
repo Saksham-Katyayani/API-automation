@@ -1,4 +1,5 @@
 const axios = require('axios');
+const async = require('async');
 
 const generateAuthToken = async () => {
     try {
@@ -83,8 +84,9 @@ const postInvoiceToCRM = async (invoice) => {
     try {
         const productDetails = [];
 
-        for (let i = 0; i < invoice.invoice.line_items.length; i++) {
-            const lineItem = invoice.invoice.line_items[i];
+        await async.eachSeries(invoice.invoice.line_items, async (itemDetails) => {
+
+            const lineItem = itemDetails;
             const product = await searchProductBySKU(lineItem.sku);
 
             const productDetail = {
@@ -103,9 +105,10 @@ const postInvoiceToCRM = async (invoice) => {
                 "product_description": lineItem.description || null,
                 "line_tax": []
             };
-
             productDetails.push(productDetail);
-        }
+        })
+
+
 
         const contact = await searchContactByPhone(invoice.invoice.billing_address.phone);
         const salesPerson = invoice.invoice.salesperson_name.toLowerCase().replace(/\s/g, '');
@@ -191,13 +194,12 @@ const executeHourlyTask = async () => {
     try {
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
 
-        for (const invoice of invoicesData) {
+        await async.eachSeries(invoicesData, async (invoice) => {
             const invoiceId = invoice.invoice_id;
             const invoiceData = await fetchInvoiceById(invoiceId, ZOHO_BOOK_ACCESS_TOKEN);
             console.log(invoiceData);
-
             await postInvoiceToCRM({ invoice: invoiceData });
-        }
+        })
     } catch (error) {
         console.error("Error executing hourly task:", error.message);
     }
