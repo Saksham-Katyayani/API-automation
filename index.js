@@ -14,8 +14,8 @@ let ZOHO_CRM_ACCESS_TOKEN = '';
 async function startServer() {
     await updateAccessToken();
     indiamartToKylas();
-    ZohoBookToCRMInvoice();
-    ZohoCRMToKylasChatLeads();
+    // ZohoBookToCRMInvoice();
+    // ZohoCRMToKylasChatLeads();
 }
 
 startServer();
