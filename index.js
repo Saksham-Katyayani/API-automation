@@ -23,6 +23,8 @@ updateAccessToken();
 
 ZohoBookToCRMInvoice();
 
+setIntervalAsync(ZohoBookToCRMInvoice, 30 * 60 * 1000);
+
 const accessTokenUpdateInterval = 10 * 60 * 1000;
 setIntervalAsync(updateAccessToken, accessTokenUpdateInterval);
 

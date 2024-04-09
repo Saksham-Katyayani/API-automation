@@ -187,8 +187,9 @@ const searchContactByPhone = async (phoneNumber) => {
     }
 };
 
-const executeHourlyTask = async () => {
+const ZohoBookToCRMInvoice = async () => {
     const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+    console.log(ZOHO_BOOK_ACCESS_TOKEN);
     try {
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
 
@@ -204,10 +205,10 @@ const executeHourlyTask = async () => {
 };
 
 
-function ZohoBookToCRMInvoice() {
-    executeHourlyTask();
-    setInterval(executeHourlyTask, 30 * 60 * 1000);
-}
+// function ZohoBookToCRMInvoice() {
+//     executeHourlyTask();
+
+// }
 
 module.exports = {
     ZohoBookToCRMInvoice
