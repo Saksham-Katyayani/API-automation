@@ -1,5 +1,4 @@
 const axios = require('axios');
-const async = require('async');
 
 const generateAuthToken = async () => {
     try {
@@ -26,7 +25,7 @@ const fetchInvoicesData = async (authToken) => {
                 headers: {
                     Authorization: `Zoho-oauthtoken ${authToken}`,
                 },
-            },
+            }
         );
 
         const invoicesData = response.data.invoices.filter((invoice) => {
@@ -36,7 +35,7 @@ const fetchInvoicesData = async (authToken) => {
         return invoicesData;
     } catch (error) {
         console.error("Error fetching invoices data:", error.message);
-        // throw error;
+        throw error;
     }
 };
 
@@ -55,7 +54,7 @@ const fetchInvoiceById = async (invoiceId, authToken) => {
         return response.data.invoice;
     } catch (error) {
         console.log('Error fetching invoice by ID:', error);
-        // throw error;
+        throw error;
     }
 };
 
@@ -74,17 +73,13 @@ const postInvoice = async (invoiceData) => {
         return await axios(config);
     } catch (error) {
         console.log('Error posting invoice to Zoho CRM:', error);
-        // throw error;
+        throw error;
     }
 };
 
 const postInvoiceToCRM = async (invoice) => {
-
     try {
-        const productDetails = [];
-
-        await async.eachSeries(invoice.invoice.line_items, async (itemDetails) => {
-
+        const productDetailsPromises = invoice.invoice.line_items.map(async (itemDetails) => {
             const lineItem = itemDetails;
             const product = await searchProductBySKU(lineItem.sku);
 
@@ -104,10 +99,10 @@ const postInvoiceToCRM = async (invoice) => {
                 "product_description": lineItem.description || null,
                 "line_tax": []
             };
-            productDetails.push(productDetail);
+            return productDetail;
         });
 
-
+        const productDetails = await Promise.all(productDetailsPromises);
 
         const contact = await searchContactByPhone(invoice.invoice.billing_address.phone);
         const salesPerson = invoice.invoice.salesperson_name.toLowerCase().replace(/\s/g, '');
@@ -146,6 +141,7 @@ const postInvoiceToCRM = async (invoice) => {
         console.log('Invoice posted to Zoho CRM successfully:', response.data);
     } catch (error) {
         console.log('Error posting invoice to Zoho CRM:', error.response ? error.response.data : error);
+        throw error;
     }
 };
 
@@ -164,7 +160,7 @@ const searchProductBySKU = async (sku) => {
         return response.data.data[0];
     } catch (error) {
         console.log('Error searching product by SKU:', error);
-        // throw error;
+        throw error;
     }
 };
 
@@ -183,32 +179,28 @@ const searchContactByPhone = async (phoneNumber) => {
         return response.data.data[0];
     } catch (error) {
         console.log('Error searching contact by phone number:', error);
-        // throw error;
+        throw error;
     }
 };
 
 const ZohoBookToCRMInvoice = async () => {
-    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+    var ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
     console.log(ZOHO_BOOK_ACCESS_TOKEN);
     try {
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
 
-        await async.eachSeries(invoicesData, async (invoice) => {
+        const promises = invoicesData.map(async (invoice) => {
             const invoiceId = invoice.invoice_id;
             const invoiceData = await fetchInvoiceById(invoiceId, ZOHO_BOOK_ACCESS_TOKEN);
             console.log(invoiceData);
             await postInvoiceToCRM({ invoice: invoiceData });
-        })
+        });
+
+        await Promise.all(promises);
     } catch (error) {
         console.error("Error executing hourly task:", error.message);
     }
 };
-
-
-// function ZohoBookToCRMInvoice() {
-//     executeHourlyTask();
-
-// }
 
 module.exports = {
     ZohoBookToCRMInvoice
