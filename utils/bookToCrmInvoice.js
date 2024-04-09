@@ -184,21 +184,25 @@ const searchContactByPhone = async (phoneNumber) => {
 };
 
 const ZohoBookToCRMInvoice = async () => {
-    var ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
-    console.log(ZOHO_BOOK_ACCESS_TOKEN);
     try {
+        const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+        console.log("Zoho book", ZOHO_BOOK_ACCESS_TOKEN);
+
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
+        console.log("invoice list", invoicesData);
 
-        const promises = invoicesData.map(async (invoice) => {
-            const invoiceId = invoice.invoice_id;
-            const invoiceData = await fetchInvoiceById(invoiceId, ZOHO_BOOK_ACCESS_TOKEN);
-            console.log(invoiceData);
-            await postInvoiceToCRM({ invoice: invoiceData });
-        });
-
-        await Promise.all(promises);
+        for (const invoice of invoicesData) {
+            try {
+                const invoiceId = invoice.invoice_id;
+                const invoiceData = await fetchInvoiceById(invoiceId, ZOHO_BOOK_ACCESS_TOKEN);
+                console.log("invoicedata", invoiceData);
+                await postInvoiceToCRM({ invoice: invoiceData });
+            } catch (error) {
+                console.error(`Error processing invoice ${invoice.invoice_id}:`, error.message);
+            }
+        }
     } catch (error) {
-        console.error("Error executing hourly task:", error.message);
+        console.error("Error executing hourly task of invoice:", error.message);
     }
 };
 
