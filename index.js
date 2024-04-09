@@ -12,14 +12,16 @@ app.use(express.urlencoded({ extended: true }));
 
 var ZOHO_CRM_ACCESS_TOKEN = '';
 
-async function startServer() {
-    await updateAccessToken();
-    // indiamartToKylas();
-    ZohoBookToCRMInvoice();
-    // ZohoCRMToKylasChatLeads();
-}
+// async function startServer() {
+//     // indiamartToKylas();
+//     // ZohoCRMToKylasChatLeads();
+// }
 
-startServer();
+// startServer();
+
+updateAccessToken();
+
+ZohoBookToCRMInvoice();
 
 const accessTokenUpdateInterval = 10 * 60 * 1000;
 setIntervalAsync(updateAccessToken, accessTokenUpdateInterval);
