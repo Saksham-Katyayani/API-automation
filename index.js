@@ -16,7 +16,7 @@ async function startServer() {
     await updateAccessToken();
     // indiamartToKylas();
     ZohoBookToCRMInvoice();
-    ZohoCRMToKylasChatLeads();
+    // ZohoCRMToKylasChatLeads();
 }
 
 startServer();
