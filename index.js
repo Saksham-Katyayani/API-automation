@@ -4,31 +4,22 @@ const { updateAccessToken } = require('./utils/token.js');
 const { indiamartToKylas } = require("./utils/indiamartToKylas.js");
 const { ZohoBookToCRMInvoice } = require("./utils/bookToCrmInvoice.js");
 const { ZohoCRMToKylasChatLeads } = require("./utils/crmToKylasChatLead.js");
-
 require("dotenv").config();
 const app = express();
 app.use(express.json());
-//app.use(express.urlencoded({ extended: true }));
-
+// app.use(express.urlencoded({ extended: true }));
 var ZOHO_CRM_ACCESS_TOKEN = '';
-
-// async function startServer() {
-//     indiamartToKylas();
-//     ZohoCRMToKylasChatLeads();
-// }
-
-//startServer();
-
+async function startServer() {
+    indiamartToKylas();
+    ZohoCRMToKylasChatLeads();
+}
+startServer();
 updateAccessToken();
-
 ZohoBookToCRMInvoice();
-
-setIntervalAsync(ZohoBookToCRMInvoice, 30 * 60 * 1000);
-
-const accessTokenUpdateInterval = 10 * 60 * 1000;
+const invoiceUpdateInterval = 12 * 60 * 60 * 1000;
+setIntervalAsync(ZohoBookToCRMInvoice, invoiceUpdateInterval);
+const accessTokenUpdateInterval = 30 * 60 * 1000;
 setIntervalAsync(updateAccessToken, accessTokenUpdateInterval);
-
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
