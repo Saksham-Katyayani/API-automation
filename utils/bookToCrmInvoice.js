@@ -23,7 +23,7 @@ const fetchInvoicesData = async (authToken) => {
             `https://www.zohoapis.in/books/v3/invoices?organization_id=${organizationId}`,
             {
                 headers: {
-                    Authorization: `Zoho-oauthtoken ${authToken}`,
+                    Authorization: `Zoho-oauthtoken 1000.0150c99971cf777ac2b12db574a09b8d.1f9db1aa38a16c52dfb2483541434571`,
                 },
             }
         );
