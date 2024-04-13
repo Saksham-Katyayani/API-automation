@@ -8,16 +8,16 @@ const { ZohoCRMToKylasChatLeads } = require("./utils/crmToKylasChatLead.js");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 var ZOHO_CRM_ACCESS_TOKEN = '';
 
-// async function startServer() {
-//     // indiamartToKylas();
-//     // ZohoCRMToKylasChatLeads();
-// }
+async function startServer() {
+    indiamartToKylas();
+    ZohoCRMToKylasChatLeads();
+}
 
-// startServer();
+startServer();
 
 updateAccessToken();
 
