@@ -65,7 +65,7 @@ function formatDateTime(date) {
 }
 
 function indiamartToKylas() {
-    console.log(ZOHO_CRM_ACCESS_TOKEN)
+    //console.log(ZOHO_CRM_ACCESS_TOKEN)
     fetchLeads();
     setInterval(fetchLeads, 10 * 60 * 1000);
 }
