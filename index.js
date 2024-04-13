@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-var ZOHO_CRM_ACCESS_TOKEN = '';
+//var ZOHO_CRM_ACCESS_TOKEN = '';
 
 async function startServer() {
     indiamartToKylas();
