@@ -1,9 +1,8 @@
 const axios = require('axios');
-
 const generateAuthToken = async () => {
     try {
         const response = await axios.post(
-            "https://accounts.zoho.in/oauth/v2/token?refresh_token=1000.73c649ffc57208adbb3d98c93d5fb695.2743446b34d737820919b76f80736cde&client_id=1000.M5D17N2P0XNFGB8T3B2WL8UCXDBOBV&client_secret=4c2bc771c7540978217ae92902c4d504de64bc3f96&redirect_uri=http://google.com/oauth2callback&grant_type=refresh_token",
+            "https://accounts.zoho.in/oauth/v2/token?grant_type=refresh_token&client_id=1000.NQHQ4NOSN8HLU681LPNBIA9G9QPACW&client_secret=d744ee4dff6bd91c7b2d80a6c5501dd969a17ef40a&redirect_uri=https://www.google.com/&refresh_token=1000.66e4bf53ecef2649afaa56ecb0d27517.be62c43137365f065ad32399c9f6bce8",
         );
         return response.data.access_token;
     } catch (error) {
@@ -11,34 +10,40 @@ const generateAuthToken = async () => {
         // throw error;
     }
 };
-
+async function getAccessToken() {
+    const accessTokenUrl =
+      "https://script.googleusercontent.com/macros/echo?user_content_key=lXdz4SBFzPaol3YcnAraVhiZdqboH1sHnTLzGxwhxdv3HHO2Kd8MAX5pRWZPZu6Q9fH1XV03NtB_sExkjD2oABwU-73905SMm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnP-u-p9iTG4jdgmUvWl3RYGEI1cvNowZuDl8EcfID0pm0Kc1gdImgzUha5MgDMQrEwZvnmwH8tzlu022UqIZfQsauDmOpfYrHNz9Jw9Md8uu&lib=MPo20bEL0RwzBzCUXHRmQVrtrsWyMfJRS";
+    try {
+      const response = await axios.get(accessTokenUrl);
+      const accessToken = response.data;
+      return accessToken;
+    } catch (error) {
+      console.log("Error fetching access token: " + error.message);
+      return null;
+    }
+  }
 const fetchInvoicesData = async (authToken) => {
-    const organizationId = "60019077437";
-
+    const organizationId = "60019077540";
     try {
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime - 30 * 60 * 1000);
-
         const response = await axios.get(
             `https://www.zohoapis.in/books/v3/invoices?organization_id=${organizationId}`,
             {
                 headers: {
-                    Authorization: `Zoho-oauthtoken 1000.0150c99971cf777ac2b12db574a09b8d.1f9db1aa38a16c52dfb2483541434571`,
+                    Authorization: `Zoho-oauthtoken ${authToken}`,
                 },
             }
         );
-
         const invoicesData = response.data.invoices.filter((invoice) => {
             return new Date(invoice.created_time) > oneHourAgo;
         });
-
         return invoicesData;
     } catch (error) {
         console.error("Error fetching invoices data:", error.message);
         throw error;
     }
 };
-
 const fetchInvoiceById = async (invoiceId, authToken) => {
     const config = {
         method: 'get',
@@ -48,7 +53,6 @@ const fetchInvoiceById = async (invoiceId, authToken) => {
             'Content-Type': 'application/json'
         }
     };
-
     try {
         const response = await axios(config);
         return response.data.invoice;
@@ -57,18 +61,18 @@ const fetchInvoiceById = async (invoiceId, authToken) => {
         throw error;
     }
 };
-
 const postInvoice = async (invoiceData) => {
+    const CRM_ACCESS_TOKEN = await getAccessToken();
+    console.log("Zoho crm", CRM_ACCESS_TOKEN);
     const config = {
         method: 'post',
         url: 'https://www.zohoapis.in/crm/v2/Invoices',
         headers: {
-            'Authorization': `Zoho-oauthtoken ${ZOHO_CRM_ACCESS_TOKEN}`,
+            'Authorization': `Zoho-oauthtoken ${CRM_ACCESS_TOKEN}`,
             'Content-Type': 'application/json'
         },
         data: JSON.stringify(invoiceData)
     };
-
     try {
         return await axios(config);
     } catch (error) {
@@ -76,13 +80,11 @@ const postInvoice = async (invoiceData) => {
         throw error;
     }
 };
-
 const postInvoiceToCRM = async (invoice) => {
     try {
         const productDetailsPromises = invoice.invoice.line_items.map(async (itemDetails) => {
             const lineItem = itemDetails;
             const product = await searchProductBySKU(lineItem.sku);
-
             const productDetail = {
                 "product": {
                     "id": product.id
@@ -101,12 +103,9 @@ const postInvoiceToCRM = async (invoice) => {
             };
             return productDetail;
         });
-
         const productDetails = await Promise.all(productDetailsPromises);
-
         const contact = await searchContactByPhone(invoice.invoice.billing_address.phone);
         const salesPerson = invoice.invoice.salesperson_name.toLowerCase().replace(/\s/g, '');
-
         const invoiceData = {
             data: [
                 {
@@ -133,10 +132,8 @@ const postInvoiceToCRM = async (invoice) => {
                 },
             ],
         };
-
         console.log("invoiceData");
         console.log(invoiceData);
-
         const response = await postInvoice(invoiceData);
         console.log('Invoice posted to Zoho CRM successfully:', response.data);
     } catch (error) {
@@ -144,17 +141,17 @@ const postInvoiceToCRM = async (invoice) => {
         throw error;
     }
 };
-
 const searchProductBySKU = async (sku) => {
+    const CRM_ACCESS_TOKEN = await getAccessToken();
+    console.log("Zoho crm", CRM_ACCESS_TOKEN);
     const config = {
         method: 'get',
         url: `https://www.zohoapis.in/crm/v2/Products/search?criteria=(Product_Code:equals:${encodeURIComponent(sku)})`,
         headers: {
-            'Authorization': `Zoho-oauthtoken ${ZOHO_CRM_ACCESS_TOKEN}`,
+            'Authorization': `Zoho-oauthtoken ${CRM_ACCESS_TOKEN}`,
             'Content-Type': 'application/json'
         }
     };
-
     try {
         const response = await axios(config);
         return response.data.data[0];
@@ -163,17 +160,17 @@ const searchProductBySKU = async (sku) => {
         throw error;
     }
 };
-
 const searchContactByPhone = async (phoneNumber) => {
+        const CRM_ACCESS_TOKEN = await getAccessToken();
+        console.log("Zoho crm", CRM_ACCESS_TOKEN);
     const config = {
         method: 'get',
         url: `https://www.zohoapis.in/crm/v2/Contacts/search?phone=${phoneNumber}`,
         headers: {
-            'Authorization': `Zoho-oauthtoken ${ZOHO_CRM_ACCESS_TOKEN}`,
+            'Authorization': `Zoho-oauthtoken ${CRM_ACCESS_TOKEN}`,
             'Content-Type': 'application/json'
         }
     };
-
     try {
         const response = await axios(config);
         return response.data.data[0];
@@ -182,15 +179,12 @@ const searchContactByPhone = async (phoneNumber) => {
         throw error;
     }
 };
-
 const ZohoBookToCRMInvoice = async () => {
     try {
         const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
         console.log("Zoho book", ZOHO_BOOK_ACCESS_TOKEN);
-
         const invoicesData = await fetchInvoicesData(ZOHO_BOOK_ACCESS_TOKEN);
         console.log("invoice list", invoicesData);
-
         for (const invoice of invoicesData) {
             try {
                 const invoiceId = invoice.invoice_id;
@@ -205,7 +199,6 @@ const ZohoBookToCRMInvoice = async () => {
         console.error("Error executing hourly task of invoice:", error.message);
     }
 };
-
 module.exports = {
     ZohoBookToCRMInvoice
 }
