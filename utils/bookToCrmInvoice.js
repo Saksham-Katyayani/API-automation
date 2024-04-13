@@ -13,7 +13,7 @@ const generateAuthToken = async () => {
 };
 
 const fetchInvoicesData = async (authToken) => {
-    const organizationId = "60019077540";
+    const organizationId = "60019077437";
 
     try {
         const currentTime = new Date();
