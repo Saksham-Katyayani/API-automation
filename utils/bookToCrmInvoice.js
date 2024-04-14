@@ -26,7 +26,7 @@ const fetchInvoicesData = async (authToken) => {
     const organizationId = "60019077540";
     try {
         const currentTime = new Date();
-        const oneHourAgo = new Date(currentTime - 30 * 60 * 1000);
+        const oneHourAgo = new Date(currentTime - 12 * 60 * 60 * 1000);
         const response = await axios.get(
             `https://www.zohoapis.in/books/v3/invoices?organization_id=${organizationId}`,
             {
