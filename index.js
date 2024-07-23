@@ -16,8 +16,8 @@ async function startServer() {
 startServer();
 updateAccessToken();
 ZohoBookToCRMInvoice();
-const invoiceUpdateInterval = 12 * 60 * 60 * 1000;
-setIntervalAsync(ZohoBookToCRMInvoice, invoiceUpdateInterval);
+const twoMonthsInMilliseconds = 2 * 30.44 * 24 * 60 * 60 * 1000;
+setIntervalAsync(ZohoBookToCRMInvoice, twoMonthsInMilliseconds);
 const accessTokenUpdateInterval = 30 * 60 * 1000;
 setIntervalAsync(updateAccessToken, accessTokenUpdateInterval);
 const PORT = process.env.PORT || 3000;
